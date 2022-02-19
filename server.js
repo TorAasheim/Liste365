@@ -60,9 +60,11 @@ app.get("/dashboard", checkNotAuthenticated,(req, res) => {
         }
         if (results.rows.length > 0) {
             results.rows.forEach(row =>{
-                listeNavn.push(row.liste_navn)
+                listeNavn.push({navn: row.liste_navn, id: row.liste_id})
             })
             res.render('dashboard', { brukernavn: req.user.brukernavn, listeNavn });
+        }else{
+            res.render('dashboard', { brukernavn: req.user.brukernavn})
         }
     })});
 
@@ -145,11 +147,23 @@ function checkNotAuthenticated(req, res, next) {
  }
 
  app.post('/dashboard', function newList(req, res){
+
         pool.query(
             `INSERT INTO listeavlister (id, liste_navn)
             VALUES ($1, $2)`, [req.user.id, req.body.ListeNavn]
         )
         res.redirect("dashboard")
+    }
+)
+
+app.post('/:delete', function deleteList(req, res){
+    const obj = Object.assign({},req.body);
+    let liste_id = parseInt(Object.keys(obj));
+
+    pool.query(`DELETE FROM liste WHERE liste_id=$1;`, [liste_id])
+    pool.query(`DELETE FROM listeavlister WHERE liste_id=$1;`, [liste_id])
+
+    res.redirect("dashboard")
     }
 )
 
