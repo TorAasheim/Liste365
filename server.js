@@ -10,6 +10,8 @@ const session = require('express-session');
 const flash = require('express-flash');
 const passport = require('passport')
 const initializePassport = require('./passportConfig');
+const { rows } = require("pg/lib/defaults");
+
 
 initializePassport(passport);
 
@@ -27,6 +29,7 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+
 
 app.use(flash())
 
@@ -48,9 +51,23 @@ app.get("/login", checkAuthenticated, (req, res) => {
      res.render("login");
  });
 
-app.get("/dashboard", checkNotAuthenticated, (req, res) => {
-    res.render("dashboard", {brukernavn: req.user.brukernavn});
-});
+app.get("/dashboard", checkNotAuthenticated,(req, res) => {
+    let listeNavn = [];
+    
+    pool.query(`SELECT * FROM listeavlister WHERE id=$1 `,[req.user.id], (err, results) => {
+        if (err) {
+            throw err;
+        }
+        if (results.rows.length > 0) {
+            results.rows.forEach(row =>{
+                listeNavn.push(row.liste_navn)
+            })
+            res.render('dashboard', { brukernavn: req.user.brukernavn, listeNavn });
+        }
+    })});
+
+
+
 
 app.get("/logut", (req,res)=>{
     req.logOut();
@@ -62,12 +79,7 @@ app.get("/logut", (req,res)=>{
 //form validation and query for registration
 app.post("/registrer", async (req, res) => {
     let { brukernavn, epost, pass, repeatPass } = req.body;
-    console.log({
-        brukernavn,
-        epost,
-        pass,
-        repeatPass
-    });
+
 
     let errors = [];
 
@@ -81,7 +93,6 @@ app.post("/registrer", async (req, res) => {
     } else {
 
         let cryptPass = await bcrypt.hash(pass, 10);
-        console.log(cryptPass);
         //checks for existing email
         pool.query(
             `SELECT * FROM brukere
@@ -89,7 +100,6 @@ app.post("/registrer", async (req, res) => {
             if (err) {
                 throw err;
             }
-            console.log(results.rows);
 
             if (results.rows.length > 0) {
                 errors.push({ message: 'Epost er allerede registrert' })
@@ -102,7 +112,6 @@ app.post("/registrer", async (req, res) => {
                         if (err) {
                             throw err;
                         }
-                        console.log(results.rows);
                         req.flash("reg_msg", "Du er nå registrert, vennligst logg inn.");
                         res.redirect('/login');
                     }
@@ -134,6 +143,18 @@ function checkNotAuthenticated(req, res, next) {
    }
    res.redirect("/login");
  }
+
+ app.post('/dashboard', function newList(req, res){
+        pool.query(
+            `INSERT INTO listeavlister (id, liste_navn)
+            VALUES ($1, $2)`, [req.user.id, req.body.ListeNavn]
+        )
+        res.redirect("dashboard")
+    }
+)
+
+
+
 
 app.listen(PORT, () => {
     console.log(`Serveren kjører på port ${PORT}`);
