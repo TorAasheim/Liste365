@@ -16,7 +16,7 @@
   <div style="background-color: #005F76;">
     <nav class="navbar">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#" style="color: black;">
+        <a class="navbar-brand" href="dashboard" style="color: black;">
           <img src="/img/omega-365-logo.svg" alt="" class="d-inline-block align-text-center">
           Liste365
         </a>
@@ -27,6 +27,40 @@
   <h1 style="padding-left: 1em; padding-top: 0.5em;">Velkommen
   </h1>
 
+  <form action="/:leggTilIListe" method="get" class="form-inline w-25" style="padding-left: 1em;">
+    <div class="input-group" style="padding-bottom: 0.5em;">
+      <div class="w-25">
+        <label for="vare" class="form-label">Vare</label>
+        <input type="text" class="form-control" name="vare" id="vare" required>
+      </div>
+  
+      <div class="w-25">
+        <label for="antall" class="form-label">Antall</label>
+        <input type="number" class="form-control" name="antall" id="antall" required>
+      </div>
+    </div>
+    <button class="btn btn-primary" type="submit" name="<%= liste_id %>">Legg Til</button>
+  </form>
+
+  <div class="m-4">
+    <ul class="list-group">
+      <% if(typeof(varer) != "undefined"){%>
+        <% varer.forEach(vare=> {%>
+        <div class="d-flex">
+          <li class="list-group-item w-25">
+            <input class="form-check-input me-1" type="checkbox">            
+            <span class="badge bg-primary rounded-pill"><%= vare.antall%></span>
+            <%= vare.vare%>
+          </li>
+          <button type="button" class="btn-close" aria-label="Close"></button>
+        </div>
+          <%})%>
+            <%} else {%>
+              <p>Du har ingen varer i listen</p>
+              <%}%>
+    </ul>
+  </div>
+  
 
 
 

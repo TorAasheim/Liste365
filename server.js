@@ -12,9 +12,7 @@ const passport = require('passport')
 const initializePassport = require('./passportConfig');
 const { rows } = require("pg/lib/defaults");
 
-
 initializePassport(passport);
-
 
 const PORT = process.env.PORT || 4000;
 
@@ -35,7 +33,6 @@ app.use(flash())
 
 //public folder
 app.use(express.static("public"));
-
 
 
 //get requests and responses
@@ -68,16 +65,30 @@ app.get("/dashboard", checkNotAuthenticated,(req, res) => {
         }
     })});
 
-app.get("/liste", checkNotAuthenticated, (req, res) => {
+app.get("/liste", checkNotAuthenticated, (req, res) => {   
+    let varer = []
     const obj = Object.assign({},req.query);
     let liste_id = parseInt(Object.keys(obj));
 
-    
-    res.render("liste");
+    pool.query(
+        `SELECT * FROM liste where liste_id=$1`, [liste_id], (err,results) => {
+            if (err) {
+                throw err;
+            }
+            if (results.rows.length > 0) {
+                results.rows.forEach(row => {
+                    varer.push({vare: row.vare, antall: row.antall, liste_id: row.liste_id})
+
+                })
+                res.render("liste", {varer: varer, liste_id})                
+            } else{
+                res.render("liste", {varer: varer, liste_id})
+
+            }
+        }
+    )
+
 });
-
-
-
 
 app.get("/logut", (req,res)=>{
     req.logOut();
@@ -174,6 +185,20 @@ app.post('/:delete', function deleteList(req, res){
     res.redirect("dashboard")
     }
 )
+
+app.get('/:leggTilIListe', function leggTilIListe(req, res){
+    let vare = req.query.vare;
+    let antall = req.query.antall;
+    let liste_id = Object.keys(req.query)[0];
+
+    pool.query(
+        `
+        INSERT INTO liste(vare, antall, liste_id)
+        VALUES($1, $2, $3);`, [vare,antall,liste_id]
+    )
+    res.redirect("liste?"+liste_id+"=Legg+Til+I+Liste")   
+})
+
 
 
 app.listen(PORT, () => {
