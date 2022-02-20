@@ -68,6 +68,14 @@ app.get("/dashboard", checkNotAuthenticated,(req, res) => {
         }
     })});
 
+app.get("/liste", checkNotAuthenticated, (req, res) => {
+    const obj = Object.assign({},req.query);
+    let liste_id = parseInt(Object.keys(obj));
+
+    
+    res.render("liste");
+});
+
 
 
 
@@ -166,8 +174,6 @@ app.post('/:delete', function deleteList(req, res){
     res.redirect("dashboard")
     }
 )
-
-
 
 
 app.listen(PORT, () => {

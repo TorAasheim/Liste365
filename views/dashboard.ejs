@@ -24,7 +24,7 @@
       </div>
     </nav>
   </div>
-  <h1 style="padding-left: 1em;">Velkommen <%= brukernavn %>
+  <h1 style="padding-left: 1em; padding-top: 0.5em;">Velkommen <%= brukernavn %>
   </h1>
 
   <div class="m-4">
@@ -33,15 +33,22 @@
         <% listeNavn.forEach(liste=> {%>
           <div>
             <div>
-              <a href="#" class="list-group-item list-group-item-action">
+              <a href="" name="<%= liste.id %>" class="list-group-item list-group-item-action">
                 <i class="bi bi-card-list" style="padding-right: 1em;"></i>
                 <%= liste.navn%>
               </a>
             </div>
-            <div style="padding-bottom: 00.5em;">
-              <form action="/:delete" method="post">
-                <input class="btn btn-primary" type="submit" name="<%= liste.id %>" value="Slett Liste" />
-              </form>
+            <div class="row" style="padding-bottom: 00.5em;">
+              <div class="col-sm-6">
+                <form action="/:delete" method="post">
+                  <input class="btn btn-primary" type="submit" name="<%= liste.id %>" value="Slett Liste" />
+                </form>
+              </div>
+              <div class="col-sm-6">
+                <form action="/liste" method="get">
+                  <input class="btn btn-primary" type="submit" name="<%= liste.id %>" value="Legg Til I Liste" />
+                </form>
+              </div>
             </div>
           </div>
           <%})%>
