@@ -28,12 +28,10 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-
 app.use(flash())
 
 //public folder
 app.use(express.static("public"));
-
 
 //get requests and responses
 app.get('/', (req, res) => {
@@ -45,46 +43,46 @@ app.get("/registrer", checkAuthenticated, (req, res) => {
 });
 
 app.get("/login", checkAuthenticated, (req, res) => {
-     res.render("login");
- });
+    res.render("login");
+});
 
-app.get("/dashboard", checkNotAuthenticated,(req, res) => {
+app.get("/dashboard", checkNotAuthenticated, (req, res) => {
     let listeNavn = [];
-    
-    pool.query(`SELECT * FROM listeavlister WHERE id=$1 `,[req.user.id], (err, results) => {
+
+    pool.query(`SELECT * FROM listeavlister WHERE id=$1 `, [req.user.id], (err, results) => {
         if (err) {
             throw err;
         }
         if (results.rows.length > 0) {
-            results.rows.forEach(row =>{
-                listeNavn.push({navn: row.liste_navn, id: row.liste_id})
+            results.rows.forEach(row => {
+                listeNavn.push({ navn: row.liste_navn, id: row.liste_id })
             })
             res.render('dashboard', { brukernavn: req.user.brukernavn, listeNavn });
-        }else{
-            res.render('dashboard', { brukernavn: req.user.brukernavn})
+        } else {
+            res.render('dashboard', { brukernavn: req.user.brukernavn })
         }
-    })});
+    })
+});
 
-
-app.get("/liste", checkNotAuthenticated, (req, res) => {   
+app.get("/liste", checkNotAuthenticated, (req, res) => {
     let varer = [];
-    const obj = Object.assign({},req.query);
+    const obj = Object.assign({}, req.query);
     let liste_id = parseInt(Object.keys(obj));
     let liste_navn = req.query.liste_navn
-    
+
     pool.query(
-        `SELECT * FROM liste where liste_id=$1`, [liste_id], (err,results) => {
+        `SELECT * FROM liste where liste_id=$1`, [liste_id], (err, results) => {
             if (err) {
                 throw err;
             }
             if (results.rows.length > 0) {
                 results.rows.forEach(row => {
-                    varer.push({vare: row.vare, antall: row.antall, liste_navn: liste_navn, liste_id: row.liste_id, vare_id:row.vare_id})
+                    varer.push({ vare: row.vare, antall: row.antall, liste_navn: liste_navn, liste_id: row.liste_id, vare_id: row.vare_id })
 
                 })
-                res.render("liste", {varer: varer, liste_id, liste_navn})                
-            } else{
-                res.render("liste", {varer: varer, liste_id, liste_navn})
+                res.render("liste", { varer: varer, liste_id, liste_navn })
+            } else {
+                res.render("liste", { varer: varer, liste_id, liste_navn })
 
             }
         }
@@ -92,18 +90,15 @@ app.get("/liste", checkNotAuthenticated, (req, res) => {
 
 });
 
-app.get("/logut", (req,res)=>{
+app.get("/logut", (req, res) => {
     req.logOut();
     req.flash('reg_msg', "Du er nå logget ut!");
     res.redirect('/login')
 });
 
-
 //form validation and query for registration
 app.post("/registrer", async (req, res) => {
     let { brukernavn, epost, pass, repeatPass } = req.body;
-
-
     let errors = [];
 
     //form validation    
@@ -155,40 +150,40 @@ app.post('/login', passport.authenticate('local', {
 
 function checkAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
-      return res.redirect("/dashboard");
+        return res.redirect("/dashboard");
     }
     next();
-  }
+}
 
 function checkNotAuthenticated(req, res, next) {
-   if (req.isAuthenticated()) {
-     return next();
-   }
-   res.redirect("/login");
- }
-
- app.post('/dashboard', function newList(req, res){
-
-        pool.query(
-            `INSERT INTO listeavlister (id, liste_navn)
-            VALUES ($1, $2)`, [req.user.id, req.body.ListeNavn]
-        )
-        res.redirect("dashboard")
+    if (req.isAuthenticated()) {
+        return next();
     }
+    res.redirect("/login");
+}
+
+app.post('/dashboard', function newList(req, res) {
+
+    pool.query(
+        `INSERT INTO listeavlister (id, liste_navn)
+            VALUES ($1, $2)`, [req.user.id, req.body.ListeNavn]
+    )
+    res.redirect("dashboard")
+}
 )
 
-app.post('/:delete', function deleteList(req, res){
-    const obj = Object.assign({},req.body);
+app.post('/:delete', function deleteList(req, res) {
+    const obj = Object.assign({}, req.body);
     let liste_id = parseInt(Object.keys(obj));
 
     pool.query(`DELETE FROM liste WHERE liste_id=$1;`, [liste_id])
     pool.query(`DELETE FROM listeavlister WHERE liste_id=$1;`, [liste_id])
 
     res.redirect("dashboard")
-    }
+}
 )
 
-app.get('/leggTilIListe', function leggTilIListe(req, res){
+app.get('/leggTilIListe', function leggTilIListe(req, res) {
     let vare = req.query.vare;
     let antall = req.query.antall;
     let liste_id = Object.keys(req.query)[0];
@@ -196,61 +191,57 @@ app.get('/leggTilIListe', function leggTilIListe(req, res){
     pool.query(
         `
         INSERT INTO liste(vare, antall, liste_id)
-        VALUES($1, $2, $3);`, [vare,antall,liste_id]
+        VALUES($1, $2, $3);`, [vare, antall, liste_id]
     )
-    res.redirect("liste?"+liste_id+"=Legg+Til+I+Liste")   
+    res.redirect("liste?" + liste_id + "=Legg+Til+I+Liste")
 })
 
-app.get('/slettFraListe', function slettFraListe(req, res){
+app.get('/slettFraListe', function slettFraListe(req, res) {
     let liste_id = req.query.liste_id
     let vare_id = req.query.vare_id
-    
+
     pool.query(
         ` DELETE FROM liste WHERE vare_id=$1; `, [vare_id]
     )
-    res.redirect("liste?"+liste_id+"=Legg+Til+I+Liste")
-      
+    res.redirect("liste?" + liste_id + "=Legg+Til+I+Liste")
+
 })
 
-app.get('/tomListe', function tomListe(req,res){
+app.get('/tomListe', function tomListe(req, res) {
     let liste_id = req.query.liste_id
-    
+
     pool.query(`
     DELETE FROM liste WHERE liste_id=$1;`, [liste_id])
 
-    res.redirect("liste?"+liste_id+"=Legg+Til+I+Liste")
+    res.redirect("liste?" + liste_id + "=Legg+Til+I+Liste")
 
 })
 
-app.get('/delListe', function delListe(req,res){
+app.get('/delListe', function delListe(req, res) {
     error = []
     let epost = req.query.epost;
     let liste_id = req.query.liste_id[1];
     let liste_navn = req.query.liste_id[0];
-    
+
 
 
     pool.query(`
-        SELECT * FROM brukere where epost=$1`, [epost], (err,res) => {
-            if(err){
-                throw err;
-            }
-            if(res.rows.length > 0){
-                pool.query(`
+        SELECT * FROM brukere where epost=$1`, [epost], (err, res) => {
+        if (err) {
+            throw err;
+        }
+        if (res.rows.length > 0) {
+            pool.query(`
                 INSERT INTO listeavlister(id, liste_navn, liste_id)
                 VALUES($1, $2, $3)`, [res.rows[0].id, liste_navn, liste_id])
-            }else{                
-                error.push({message: 'Denne eposten er ikke registrert i vårt system' })
-            }
+        } else {
+            error.push({ message: 'Denne eposten er ikke registrert i vårt system' })
         }
-        )
-        res.redirect("liste?"+liste_id+"=Legg+Til+I+Liste")
+    }
+    )
+    res.redirect("liste?" + liste_id + "=Legg+Til+I+Liste")
 
 })
-
-
-
-
 
 app.listen(PORT, () => {
     console.log(`Serveren kjører på port ${PORT}`);

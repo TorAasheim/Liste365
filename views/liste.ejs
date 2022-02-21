@@ -24,11 +24,11 @@
       </div>
     </nav>
   </div>
- <!---->
+  <!---->
   <form class="row w-25" style="padding-left: 1em; padding-top: 1em;" action="/delListe" method="get">
     <div class="col-auto">
-      <input type="hidden" name="liste_id" value="<%= liste_navn%>"/>
-      <input type="hidden" name="liste_id" value="<%= liste_id%>"/>
+      <input type="hidden" name="liste_id" value="<%= liste_navn%>" />
+      <input type="hidden" name="liste_id" value="<%= liste_id%>" />
       <input type="email" class="form-control" name="epost" id="epost" placeholder="Epost" required>
     </div>
     <div class="col-auto">
@@ -37,37 +37,40 @@
   </form>
 
   <div>
-  <form action="/leggTilIListe" method="get" class="form-inline w-25" style="padding-left: 1em;">
-    <div class="input-group" style="padding-bottom: 0.5em;">
-      <div class="w-25">
-        <label for="vare" class="form-label">Vare</label>
-        <input type="text" class="form-control" name="vare" id="vare" required>
+    <form action="/leggTilIListe" method="get" class="form-inline w-25" style="padding-left: 1em;">
+      <div class="input-group" style="padding-bottom: 0.5em;">
+        <div class="w-25">
+          <label for="vare" class="form-label">Vare</label>
+          <input type="text" class="form-control" name="vare" id="vare" required>
+        </div>
+
+        <div class="w-25">
+          <label for="antall" class="form-label">Antall</label>
+          <input type="number" class="form-control" name="antall" id="antall" required>
+        </div>
       </div>
-  
-      <div class="w-25">
-        <label for="antall" class="form-label">Antall</label>
-        <input type="number" class="form-control" name="antall" id="antall" required>
-      </div>
-    </div>
-    <button class="btn btn-primary" type="submit" name="<%= liste_id %>">Legg Til</button>
-  </form>
-</div>
+      <button class="btn btn-primary" type="submit" name="<%= liste_id %>">Legg Til</button>
+    </form>
+  </div>
 
   <div class="m-4">
     <ul class="list-group">
-      <% if(typeof(varer) != "undefined"){%>
+      <% if(typeof(varer) !="undefined" ){%>
         <% varer.forEach(vare=> {%>
-        <div class="d-flex">
-          <li class="list-group-item w-25">
-            <input class="form-check-input me-1" type="checkbox">            
-            <span class="badge bg-primary rounded-pill"><%= vare.antall%></span>
-            <%= vare.vare%>
-          </li>
-          <form action="/slettFraListe" method="delete">
-            <input type="hidden" name="liste_id" value="<%= liste_id%>"/>
-            <button type="submit" name="vare_id" value="<%= vare.vare_id%>" class="btn-close" aria-label="Close"></button>
-          </form>
-        </div>
+          <div class="d-flex">
+            <li class="list-group-item w-25">
+              <input class="form-check-input me-1" type="checkbox">
+              <span class="badge bg-primary rounded-pill">
+                <%= vare.antall%>
+              </span>
+              <%= vare.vare%>
+            </li>
+            <form action="/slettFraListe" method="delete">
+              <input type="hidden" name="liste_id" value="<%= liste_id%>" />
+              <button type="submit" name="vare_id" value="<%= vare.vare_id%>" class="btn-close"
+                aria-label="Close"></button>
+            </form>
+          </div>
           <%})%>
             <%} else {%>
               <p>Du har ingen varer i listen</p>
@@ -76,14 +79,14 @@
   </div>
 
   <div class="w-25" style="padding-left: 1em;">
-    <form action="/tomListe", method="get">
-      <button class="btn btn-primary" type="submit" name="liste_id" value="<%= liste_id %>">Tøm Liste</button>    
+    <form action="/tomListe" , method="get">
+      <button class="btn btn-primary" type="submit" name="liste_id" value="<%= liste_id %>">Tøm Liste</button>
     </form>
   </div>
 
-  
-  
-  
+
+
+
 
 
 

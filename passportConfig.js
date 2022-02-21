@@ -38,11 +38,11 @@ function initialize(passport) {
         authenticateUser
     ))
     //lagrer bruker id i session cookie
-    passport.serializeUser((bruker, done)=> done(null, bruker.id));
+    passport.serializeUser((bruker, done) => done(null, bruker.id));
     //Bruker if til å hente bruker info fra databasen
-    passport.deserializeUser((id, done)=> {
+    passport.deserializeUser((id, done) => {
         pool.query(
-            `SELECT * FROM brukere WHERE id = $1`, [id], (err, results)=>{
+            `SELECT * FROM brukere WHERE id = $1`, [id], (err, results) => {
                 if (err) {
                     throw done(err);
                 }

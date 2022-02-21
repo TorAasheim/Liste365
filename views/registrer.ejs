@@ -21,11 +21,13 @@
       </div>
     </nav>
   </div>
-  
+
   <!--For each if more validation chekcs are included-->
   <ul>
-    <% if(typeof errors != 'undefined') {%>
-      <li><%= errors[0].message%></li>
+    <% if(typeof errors !='undefined' ) {%>
+      <li>
+        <%= errors[0].message%>
+      </li>
       <%}%>
   </ul>
 
@@ -53,10 +55,6 @@
       <button type="submit" class="btn btn-primary">Registrer</button>
     </div>
   </form>
-
- 
-
-
 
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
