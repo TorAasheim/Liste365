@@ -46,6 +46,7 @@
               </div>
               <div class="col-sm-6">
                 <form action="/liste" method="get">
+                  <input type="hidden" name="liste_navn" value="<%= liste.navn%>"/>
                   <input class="btn btn-primary" type="submit" name="<%= liste.id %>" value="Legg Til I Liste" />
                 </form>
               </div>

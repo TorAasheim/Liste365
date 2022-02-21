@@ -24,8 +24,18 @@
       </div>
     </nav>
   </div>
-  <h1 style="padding-left: 1em; padding-top: 0.5em;">Velkommen
-  </h1>
+ <!---->
+  <form class="row w-25" style="padding-left: 1em; padding-top: 1em;" action="/delListe" method="get">
+    <div class="col-auto">
+      <input type="hidden" name="liste_id" value="<%= liste_navn%>"/>
+      <input type="hidden" name="liste_id" value="<%= liste_id%>"/>
+      <input type="email" class="form-control" name="epost" id="epost" placeholder="Epost" required>
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-primary mb-3">Del Liste</button>
+    </div>
+  </form>
+
   <div>
   <form action="/leggTilIListe" method="get" class="form-inline w-25" style="padding-left: 1em;">
     <div class="input-group" style="padding-bottom: 0.5em;">
@@ -64,6 +74,15 @@
               <%}%>
     </ul>
   </div>
+
+  <div class="w-25" style="padding-left: 1em;">
+    <form action="/tomListe", method="get">
+      <button class="btn btn-primary" type="submit" name="liste_id" value="<%= liste_id %>">Tøm Liste</button>    
+    </form>
+  </div>
+
+  
+  
   
 
 

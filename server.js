@@ -65,10 +65,12 @@ app.get("/dashboard", checkNotAuthenticated,(req, res) => {
         }
     })});
 
+
 app.get("/liste", checkNotAuthenticated, (req, res) => {   
-    let varer = []
+    let varer = [];
     const obj = Object.assign({},req.query);
     let liste_id = parseInt(Object.keys(obj));
+    let liste_navn = req.query.liste_navn
     
     pool.query(
         `SELECT * FROM liste where liste_id=$1`, [liste_id], (err,results) => {
@@ -77,12 +79,12 @@ app.get("/liste", checkNotAuthenticated, (req, res) => {
             }
             if (results.rows.length > 0) {
                 results.rows.forEach(row => {
-                    varer.push({vare: row.vare, antall: row.antall, liste_id: row.liste_id, vare_id:row.vare_id})
+                    varer.push({vare: row.vare, antall: row.antall, liste_navn: liste_navn, liste_id: row.liste_id, vare_id:row.vare_id})
 
                 })
-                res.render("liste", {varer: varer, liste_id})                
+                res.render("liste", {varer: varer, liste_id, liste_navn})                
             } else{
-                res.render("liste", {varer: varer, liste_id})
+                res.render("liste", {varer: varer, liste_id, liste_navn})
 
             }
         }
@@ -208,6 +210,42 @@ app.get('/slettFraListe', function slettFraListe(req, res){
     )
     res.redirect("liste?"+liste_id+"=Legg+Til+I+Liste")
       
+})
+
+app.get('/tomListe', function tomListe(req,res){
+    let liste_id = req.query.liste_id
+    
+    pool.query(`
+    DELETE FROM liste WHERE liste_id=$1;`, [liste_id])
+
+    res.redirect("liste?"+liste_id+"=Legg+Til+I+Liste")
+
+})
+
+app.get('/delListe', function delListe(req,res){
+    error = []
+    let epost = req.query.epost;
+    let liste_id = req.query.liste_id[1];
+    let liste_navn = req.query.liste_id[0];
+    
+
+
+    pool.query(`
+        SELECT * FROM brukere where epost=$1`, [epost], (err,res) => {
+            if(err){
+                throw err;
+            }
+            if(res.rows.length > 0){
+                pool.query(`
+                INSERT INTO listeavlister(id, liste_navn, liste_id)
+                VALUES($1, $2, $3)`, [res.rows[0].id, liste_navn, liste_id])
+            }else{                
+                error.push({message: 'Denne eposten er ikke registrert i vårt system' })
+            }
+        }
+        )
+        res.redirect("liste?"+liste_id+"=Legg+Til+I+Liste")
+
 })
 
 
