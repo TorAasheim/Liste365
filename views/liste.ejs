@@ -27,7 +27,7 @@
   <!---->
   <form class="row w-25" style="padding-left: 1em; padding-top: 1em;" action="/delListe" method="get">
     <div class="col-auto">
-      <input type="hidden" name="liste_id" value="<%= liste_navn%>" />
+      <input type="hidden" name="liste_navn" value="<%= liste_navn%>"/>
       <input type="hidden" name="liste_id" value="<%= liste_id%>" />
       <input type="email" class="form-control" name="epost" id="epost" placeholder="Epost" required>
     </div>
@@ -35,6 +35,13 @@
       <button type="submit" class="btn btn-primary mb-3">Del Liste</button>
     </div>
   </form>
+  <ul>
+    <% if(messages.reg_msg){%>
+      <li>
+        <%= messages.reg_msg %>
+      </li>
+      <%}%>
+  </ul>
 
   <div>
     <form action="/leggTilIListe" method="get" class="form-inline w-25" style="padding-left: 1em;">
@@ -49,6 +56,7 @@
           <input type="number" class="form-control" name="antall" id="antall" required>
         </div>
       </div>
+      <input type="hidden" name="liste_navn" value="<%=liste_navn%>"/>
       <button class="btn btn-primary" type="submit" name="<%= liste_id %>">Legg Til</button>
     </form>
   </div>
@@ -67,6 +75,7 @@
             </li>
             <form action="/slettFraListe" method="delete">
               <input type="hidden" name="liste_id" value="<%= liste_id%>" />
+              <input type="hidden" name="liste_navn" value="<%= liste_navn%>"/>
               <button type="submit" name="vare_id" value="<%= vare.vare_id%>" class="btn-close"
                 aria-label="Close"></button>
             </form>
@@ -80,6 +89,7 @@
 
   <div class="w-25" style="padding-left: 1em;">
     <form action="/tomListe" , method="get">
+      <input type="hidden" name="liste_navn" value="<%= liste_navn%>"/>
       <button class="btn btn-primary" type="submit" name="liste_id" value="<%= liste_id %>">Tøm Liste</button>
     </form>
   </div>

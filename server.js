@@ -77,7 +77,7 @@ app.get("/liste", checkNotAuthenticated, (req, res) => {
             }
             if (results.rows.length > 0) {
                 results.rows.forEach(row => {
-                    varer.push({ vare: row.vare, antall: row.antall, liste_navn: liste_navn, liste_id: row.liste_id, vare_id: row.vare_id })
+                    varer.push({ vare: row.vare, antall: row.antall, liste_navn, liste_id: row.liste_id, vare_id: row.vare_id })
 
                 })
                 res.render("liste", { varer: varer, liste_id, liste_navn })
@@ -186,6 +186,7 @@ app.post('/:delete', function deleteList(req, res) {
 app.get('/leggTilIListe', function leggTilIListe(req, res) {
     let vare = req.query.vare;
     let antall = req.query.antall;
+    let liste_navn = req.query.liste_navn;
     let liste_id = Object.keys(req.query)[0];
 
     pool.query(
@@ -193,37 +194,41 @@ app.get('/leggTilIListe', function leggTilIListe(req, res) {
         INSERT INTO liste(vare, antall, liste_id)
         VALUES($1, $2, $3);`, [vare, antall, liste_id]
     )
-    res.redirect("liste?" + liste_id + "=Legg+Til+I+Liste")
+    //res.redirect("liste?" + liste_id + "=Legg+Til+I+Liste")
+    res.redirect("liste?" + "liste_navn=" + liste_navn + "&" + liste_id + "=Legg+Til+I+Liste")
 })
 
 app.get('/slettFraListe', function slettFraListe(req, res) {
-    let liste_id = req.query.liste_id
-    let vare_id = req.query.vare_id
+    let liste_id = req.query.liste_id;
+    let vare_id = req.query.vare_id;
+    let liste_navn = req.query.liste_navn;
+
 
     pool.query(
         ` DELETE FROM liste WHERE vare_id=$1; `, [vare_id]
     )
-    res.redirect("liste?" + liste_id + "=Legg+Til+I+Liste")
+    //res.redirect("liste?" + liste_id + "=Legg+Til+I+Liste")
+    res.redirect("liste?" + "liste_navn=" + liste_navn + "&" + liste_id + "=Legg+Til+I+Liste")
 
 })
 
 app.get('/tomListe', function tomListe(req, res) {
     let liste_id = req.query.liste_id
+    let liste_navn = req.query.liste_navn
 
     pool.query(`
     DELETE FROM liste WHERE liste_id=$1;`, [liste_id])
 
-    res.redirect("liste?" + liste_id + "=Legg+Til+I+Liste")
+    //res.redirect("liste?" + liste_id + "=Legg+Til+I+Liste")
+    res.redirect("liste?" + "liste_navn=" + liste_navn + "&" + liste_id + "=Legg+Til+I+Liste")
 
 })
 
 app.get('/delListe', function delListe(req, res) {
-    error = []
+    error = 0;
     let epost = req.query.epost;
-    let liste_id = req.query.liste_id[1];
-    let liste_navn = req.query.liste_id[0];
-
-
+    let liste_id = req.query.liste_id;
+    let liste_navn = req.query.liste_navn;
 
     pool.query(`
         SELECT * FROM brukere where epost=$1`, [epost], (err, res) => {
@@ -231,16 +236,25 @@ app.get('/delListe', function delListe(req, res) {
             throw err;
         }
         if (res.rows.length > 0) {
-            pool.query(`
-                INSERT INTO listeavlister(id, liste_navn, liste_id)
-                VALUES($1, $2, $3)`, [res.rows[0].id, liste_navn, liste_id])
+            let id = res.rows[0].id
+            pool.query(
+                `SELECT * FROM listeavlister where id=$1 AND liste_id=$2 `, [id, liste_id], (err, res) => {
+                    if (res.rows.length > 0) {
+                        console.log("Brukeren har allerede tilgang til listen")
+                    } else {
+                        pool.query(`
+                            INSERT INTO listeavlister(id, liste_navn, liste_id)
+                            VALUES($1, $2, $3)`, [id, liste_navn, liste_id])
+                    }
+                }
+            )
+
         } else {
-            error.push({ message: 'Denne eposten er ikke registrert i vårt system' })
+            console.log("Denne eposten er ikke registrert i vårt system")
         }
     }
     )
-    res.redirect("liste?" + liste_id + "=Legg+Til+I+Liste")
-
+    res.redirect("liste?" + "liste_navn=" + liste_navn + "&" + liste_id + "=Legg+Til+I+Liste")
 })
 
 app.listen(PORT, () => {

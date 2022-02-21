@@ -33,7 +33,7 @@
         <% listeNavn.forEach(liste=> {%>
           <div>
             <div>
-              <a href="" name="<%= liste.id %>" class="list-group-item list-group-item-action">
+              <a href="/liste" name="<%= liste.id %>" class="list-group-item list-group-item-action" style="pointer-events: none; cursor: default;">
                 <i class="bi bi-card-list" style="padding-right: 1em;"></i>
                 <%= liste.navn%>
               </a>
