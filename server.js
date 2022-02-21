@@ -69,7 +69,7 @@ app.get("/liste", checkNotAuthenticated, (req, res) => {
     let varer = []
     const obj = Object.assign({},req.query);
     let liste_id = parseInt(Object.keys(obj));
-
+    
     pool.query(
         `SELECT * FROM liste where liste_id=$1`, [liste_id], (err,results) => {
             if (err) {
@@ -77,7 +77,7 @@ app.get("/liste", checkNotAuthenticated, (req, res) => {
             }
             if (results.rows.length > 0) {
                 results.rows.forEach(row => {
-                    varer.push({vare: row.vare, antall: row.antall, liste_id: row.liste_id})
+                    varer.push({vare: row.vare, antall: row.antall, liste_id: row.liste_id, vare_id:row.vare_id})
 
                 })
                 res.render("liste", {varer: varer, liste_id})                
@@ -186,7 +186,7 @@ app.post('/:delete', function deleteList(req, res){
     }
 )
 
-app.get('/:leggTilIListe', function leggTilIListe(req, res){
+app.get('/leggTilIListe', function leggTilIListe(req, res){
     let vare = req.query.vare;
     let antall = req.query.antall;
     let liste_id = Object.keys(req.query)[0];
@@ -198,6 +198,19 @@ app.get('/:leggTilIListe', function leggTilIListe(req, res){
     )
     res.redirect("liste?"+liste_id+"=Legg+Til+I+Liste")   
 })
+
+app.get('/slettFraListe', function slettFraListe(req, res){
+    let liste_id = req.query.liste_id
+    let vare_id = req.query.vare_id
+    
+    pool.query(
+        ` DELETE FROM liste WHERE vare_id=$1; `, [vare_id]
+    )
+    res.redirect("liste?"+liste_id+"=Legg+Til+I+Liste")
+      
+})
+
+
 
 
 

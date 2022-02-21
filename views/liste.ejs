@@ -26,8 +26,8 @@
   </div>
   <h1 style="padding-left: 1em; padding-top: 0.5em;">Velkommen
   </h1>
-
-  <form action="/:leggTilIListe" method="get" class="form-inline w-25" style="padding-left: 1em;">
+  <div>
+  <form action="/leggTilIListe" method="get" class="form-inline w-25" style="padding-left: 1em;">
     <div class="input-group" style="padding-bottom: 0.5em;">
       <div class="w-25">
         <label for="vare" class="form-label">Vare</label>
@@ -41,6 +41,7 @@
     </div>
     <button class="btn btn-primary" type="submit" name="<%= liste_id %>">Legg Til</button>
   </form>
+</div>
 
   <div class="m-4">
     <ul class="list-group">
@@ -52,7 +53,10 @@
             <span class="badge bg-primary rounded-pill"><%= vare.antall%></span>
             <%= vare.vare%>
           </li>
-          <button type="button" class="btn-close" aria-label="Close"></button>
+          <form action="/slettFraListe" method="delete">
+            <input type="hidden" name="liste_id" value="<%= liste_id%>"/>
+            <button type="submit" name="vare_id" value="<%= vare.vare_id%>" class="btn-close" aria-label="Close"></button>
+          </form>
         </div>
           <%})%>
             <%} else {%>
